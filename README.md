@@ -95,7 +95,7 @@ Common attributes in both: `session_id`, `user_email`, `organization_id`, `termi
 
 OpenObserve's built-in Home page can't be replaced — it's a hardcoded view
 (`HomeView.vue`), and OSS has no "dashboard as home" setting. Instead, use the
-**Claude Code · Обзор** (Overview) dashboard: rate limits, spend, active sessions, top tools,
+**Claude Code · Overview** dashboard: rate limits, spend, active sessions, top tools,
 and recent prompts on one screen. Open it via a bookmark:
 
 ```
@@ -113,21 +113,21 @@ Optionally, you can remove unused sections from the left menu — the
 
 Ready-made dashboards live in the `default` folder (UI → **Dashboards**):
 
-- **Claude Code · Обзор** — the summary screen described above.
+- **Claude Code · Overview** — the summary screen described above.
 
-- **Claude Code · Расходы** (Cost) — cost / tokens / sessions / active time for the period,
+- **Claude Code · Cost** — cost / tokens / sessions / active time for the period,
   cost over time by model, a donut chart broken down by model, tokens by type (input, output,
   cacheRead, cacheCreation), a per-session cost table.
-- **Claude Code · Активность** (Activity) — prompts, API requests, average latency, events over
+- **Claude Code · Activity** — prompts, API requests, average latency, events over
   time and by type, API latency by model, hook triggers, a table of recent prompts.
 
-- **Claude Code · Сессии** (Sessions) — a list of sessions: status, last activity, prompt count,
-  tool call count, cost, model. Clicking a row → the **«Открыть сессию»** ("Open session") menu →
+- **Claude Code · Sessions** — a list of sessions: status, last activity, prompt count,
+  tool call count, cost, model. Clicking a row → the **Open session** menu →
   a detailed dashboard for that session.
-- **Claude Code · Сессия** (Session) — what happened inside a single session: cost / prompts /
+- **Claude Code · Session** — what happened inside a single session: cost / prompts /
   tool calls / duration, the dialogue (prompt → responses), a table of tool calls
   with the permission decision, tokens, API latency, and a full event timeline.
-  The session is picked from the **Сессия** ("Session") dropdown at the top (the `session_id` variable)
+  The session is picked from the **Session** dropdown at the top (the `session_id` variable)
   or arrives via drilldown.
 
 Sources: `dashboards/*.json` (dashboard schema v8). Import:
@@ -201,7 +201,7 @@ and project-level settings override user-level ones (verified both ways).
 `install-poller.sh` installs a launchd agent on macOS and a cron job on Linux.
 Polling itself doesn't spend tokens: `/usage` doesn't call the model.
 
-The **Claude Code · Лимиты подписки** (Subscription limits) dashboard: two gauges (the 5-hour
+The **Claude Code · Subscription limits** dashboard: two gauges (the 5-hour
 and weekly windows), time to reset for each window, a usage-over-time chart, and a table of
 measurements.
 

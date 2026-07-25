@@ -1,20 +1,25 @@
 {
   "version": 8,
-  "title": "Claude Code · Расходы",
-  "description": "Стоимость, токены и сессии Claude Code",
+  "title": "Claude Code · Cost",
+  "description": "Claude Code cost, tokens and sessions",
   "role": "",
   "owner": "",
   "tabs": [
     {
       "tabId": "default",
-      "name": "Расходы",
+      "name": "Cost",
       "panels": [
         {
           "id": "cost_total",
           "type": "metric",
-          "title": "Стоимость за период",
+          "title": "Cost for the period",
           "description": "",
-          "config": { "show_legends": false, "unit": "custom", "unit_custom": "$", "decimals": 3 },
+          "config": {
+            "show_legends": false,
+            "unit": "custom",
+            "unit_custom": "$",
+            "decimals": 3
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -24,21 +29,44 @@
                 "stream": "claude_code_cost_usage",
                 "stream_type": "metrics",
                 "x": [],
-                "y": [{ "label": "USD", "alias": "y_axis_1", "column": "value", "color": null }],
+                "y": [
+                  {
+                    "label": "USD",
+                    "alias": "y_axis_1",
+                    "column": "value",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 0, "w": 48, "h": 10, "i": 1 }
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "w": 48,
+            "h": 10,
+            "i": 1
+          }
         },
         {
           "id": "tokens_total",
           "type": "metric",
-          "title": "Токены за период",
+          "title": "Tokens for the period",
           "description": "",
-          "config": { "show_legends": false, "unit": "numbers", "decimals": 1 },
+          "config": {
+            "show_legends": false,
+            "unit": "numbers",
+            "decimals": 1
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -48,21 +76,44 @@
                 "stream": "claude_code_token_usage",
                 "stream_type": "metrics",
                 "x": [],
-                "y": [{ "label": "Токены", "alias": "y_axis_1", "column": "value", "color": null }],
+                "y": [
+                  {
+                    "label": "Tokens",
+                    "alias": "y_axis_1",
+                    "column": "value",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 48, "y": 0, "w": 48, "h": 10, "i": 2 }
+          "layout": {
+            "x": 48,
+            "y": 0,
+            "w": 48,
+            "h": 10,
+            "i": 2
+          }
         },
         {
           "id": "sessions_total",
           "type": "metric",
-          "title": "Сессии",
+          "title": "Sessions",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -72,21 +123,44 @@
                 "stream": "claude_code_session_count",
                 "stream_type": "metrics",
                 "x": [],
-                "y": [{ "label": "Сессии", "alias": "y_axis_1", "column": "value", "color": null }],
+                "y": [
+                  {
+                    "label": "Sessions",
+                    "alias": "y_axis_1",
+                    "column": "value",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 96, "y": 0, "w": 48, "h": 10, "i": 3 }
+          "layout": {
+            "x": 96,
+            "y": 0,
+            "w": 48,
+            "h": 10,
+            "i": 3
+          }
         },
         {
           "id": "active_time_total",
           "type": "metric",
-          "title": "Активное время",
+          "title": "Active time",
           "description": "",
-          "config": { "show_legends": false, "unit": "seconds", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "seconds",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -96,21 +170,46 @@
                 "stream": "claude_code_active_time_total",
                 "stream_type": "metrics",
                 "x": [],
-                "y": [{ "label": "Секунды", "alias": "y_axis_1", "column": "value", "color": null }],
+                "y": [
+                  {
+                    "label": "Seconds",
+                    "alias": "y_axis_1",
+                    "column": "value",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 144, "y": 0, "w": 48, "h": 10, "i": 4 }
+          "layout": {
+            "x": 144,
+            "y": 0,
+            "w": 48,
+            "h": 10,
+            "i": 4
+          }
         },
         {
           "id": "cost_over_time",
           "type": "stacked",
-          "title": "Стоимость во времени по моделям",
+          "title": "Cost over time by model",
           "description": "",
-          "config": { "show_legends": true, "legends_position": "bottom", "unit": "custom", "unit_custom": "$", "decimals": 4 },
+          "config": {
+            "show_legends": true,
+            "legends_position": "bottom",
+            "unit": "custom",
+            "unit_custom": "$",
+            "decimals": 4
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -119,23 +218,62 @@
               "fields": {
                 "stream": "claude_code_cost_usage",
                 "stream_type": "metrics",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "_timestamp", "color": null }],
-                "y": [{ "label": "USD", "alias": "y_axis_1", "column": "value", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "_timestamp",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "USD",
+                    "alias": "y_axis_1",
+                    "column": "value",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "breakdown": [{ "label": "Модель", "alias": "breakdown_1", "column": "model", "color": null }],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "breakdown": [
+                  {
+                    "label": "Model",
+                    "alias": "breakdown_1",
+                    "column": "model",
+                    "color": null
+                  }
+                ],
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 10, "w": 96, "h": 18, "i": 5 }
+          "layout": {
+            "x": 0,
+            "y": 10,
+            "w": 96,
+            "h": 18,
+            "i": 5
+          }
         },
         {
           "id": "cost_by_model",
           "type": "donut",
-          "title": "Стоимость по моделям",
+          "title": "Cost by model",
           "description": "",
-          "config": { "show_legends": true, "legends_position": "right", "unit": "custom", "unit_custom": "$", "decimals": 4 },
+          "config": {
+            "show_legends": true,
+            "legends_position": "right",
+            "unit": "custom",
+            "unit_custom": "$",
+            "decimals": 4
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -144,22 +282,53 @@
               "fields": {
                 "stream": "claude_code_cost_usage",
                 "stream_type": "metrics",
-                "x": [{ "label": "Модель", "alias": "x_axis_1", "column": "model", "color": null }],
-                "y": [{ "label": "USD", "alias": "y_axis_1", "column": "value", "color": null }],
+                "x": [
+                  {
+                    "label": "Model",
+                    "alias": "x_axis_1",
+                    "column": "model",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "USD",
+                    "alias": "y_axis_1",
+                    "column": "value",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 96, "y": 10, "w": 96, "h": 18, "i": 6 }
+          "layout": {
+            "x": 96,
+            "y": 10,
+            "w": 96,
+            "h": 18,
+            "i": 6
+          }
         },
         {
           "id": "tokens_over_time",
           "type": "stacked",
-          "title": "Токены во времени по типам",
+          "title": "Tokens over time by type",
           "description": "input / output / cacheRead / cacheCreation",
-          "config": { "show_legends": true, "legends_position": "bottom", "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": true,
+            "legends_position": "bottom",
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -168,23 +337,61 @@
               "fields": {
                 "stream": "claude_code_token_usage",
                 "stream_type": "metrics",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "_timestamp", "color": null }],
-                "y": [{ "label": "Токены", "alias": "y_axis_1", "column": "value", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "_timestamp",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "Tokens",
+                    "alias": "y_axis_1",
+                    "column": "value",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "breakdown": [{ "label": "Тип", "alias": "breakdown_1", "column": "type", "color": null }],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "breakdown": [
+                  {
+                    "label": "Type",
+                    "alias": "breakdown_1",
+                    "column": "type",
+                    "color": null
+                  }
+                ],
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 28, "w": 96, "h": 18, "i": 7 }
+          "layout": {
+            "x": 0,
+            "y": 28,
+            "w": 96,
+            "h": 18,
+            "i": 7
+          }
         },
         {
           "id": "tokens_by_model",
           "type": "h-stacked",
-          "title": "Токены по моделям и типам",
+          "title": "Tokens by model and type",
           "description": "",
-          "config": { "show_legends": true, "legends_position": "bottom", "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": true,
+            "legends_position": "bottom",
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -193,23 +400,61 @@
               "fields": {
                 "stream": "claude_code_token_usage",
                 "stream_type": "metrics",
-                "x": [{ "label": "Модель", "alias": "x_axis_1", "column": "model", "color": null }],
-                "y": [{ "label": "Токены", "alias": "y_axis_1", "column": "value", "color": null }],
+                "x": [
+                  {
+                    "label": "Model",
+                    "alias": "x_axis_1",
+                    "column": "model",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "Tokens",
+                    "alias": "y_axis_1",
+                    "column": "value",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "breakdown": [{ "label": "Тип", "alias": "breakdown_1", "column": "type", "color": null }],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "breakdown": [
+                  {
+                    "label": "Type",
+                    "alias": "breakdown_1",
+                    "column": "type",
+                    "color": null
+                  }
+                ],
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 96, "y": 28, "w": 96, "h": 18, "i": 8 }
+          "layout": {
+            "x": 96,
+            "y": 28,
+            "w": 96,
+            "h": 18,
+            "i": 8
+          }
         },
         {
           "id": "cost_by_session",
           "type": "table",
-          "title": "Стоимость по сессиям",
+          "title": "Cost by session",
           "description": "",
-          "config": { "show_legends": false, "unit": "custom", "unit_custom": "$", "decimals": 4 },
+          "config": {
+            "show_legends": false,
+            "unit": "custom",
+            "unit_custom": "$",
+            "decimals": 4
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -218,15 +463,41 @@
               "fields": {
                 "stream": "claude_code_cost_usage",
                 "stream_type": "metrics",
-                "x": [{ "label": "Сессия", "alias": "x_axis_1", "column": "session_id", "color": null }],
-                "y": [{ "label": "USD", "alias": "y_axis_1", "column": "value", "color": null }],
+                "x": [
+                  {
+                    "label": "Session",
+                    "alias": "x_axis_1",
+                    "column": "session_id",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "USD",
+                    "alias": "y_axis_1",
+                    "column": "value",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 46, "w": 192, "h": 18, "i": 9 }
+          "layout": {
+            "x": 0,
+            "y": 46,
+            "w": 192,
+            "h": 18,
+            "i": 9
+          }
         }
       ]
     }

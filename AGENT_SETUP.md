@@ -92,8 +92,7 @@ Delete the test records afterward: `DELETE /api/default/streams/claude_code_limi
 
 - `./import-dashboards.sh` (or UI → Dashboards → Import).
 - The script creates the dashboards fresh on every run — importing again produces duplicates.
-- Verify that all six appeared: Обзор (Overview), Расходы (Cost), Активность (Activity),
-  Сессии (Sessions), Сессия (Session), Лимиты подписки (Subscription limits).
+- Verify that all six appeared: Overview, Cost, Activity, Sessions, Session, Subscription limits.
 
 ## 6. Verify the end-to-end flow
 
@@ -103,7 +102,7 @@ Delete the test records afterward: `DELETE /api/default/streams/claude_code_limi
   - `docker logs openobserve | grep 'POST /api/default/v1/'` — should show `200`s;
   - `curl -s -H "Authorization: Basic $B64" http://localhost:5080/api/default/streams`
     — `claude_code` (logs) and `claude_code_*` (metrics) should appear.
-- Open the **Claude Code · Обзор** (Overview) dashboard and confirm the panels are populated.
+- Open the **Claude Code · Overview** dashboard and confirm the panels are populated.
   If it's empty, click Refresh in the header: OpenObserve caches panel results, and on first
   open the data sometimes doesn't catch up.
 

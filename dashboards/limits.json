@@ -1,20 +1,24 @@
 {
   "version": 8,
-  "title": "Claude Code · Лимиты подписки",
-  "description": "rate_limits из statusline: 5-часовое и недельное окна",
+  "title": "Claude Code · Subscription limits",
+  "description": "rate_limits from the statusline: 5-hour and weekly windows",
   "role": "",
   "owner": "",
   "tabs": [
     {
       "tabId": "default",
-      "name": "Лимиты",
+      "name": "Limits",
       "panels": [
         {
           "id": "l_5h",
           "type": "gauge",
-          "title": "5-часовое окно",
-          "description": "Последнее известное значение",
-          "config": { "show_legends": false, "unit": "percent", "decimals": 1 },
+          "title": "5-hour window",
+          "description": "Last known value",
+          "config": {
+            "show_legends": false,
+            "unit": "percent",
+            "decimals": 1
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -24,21 +28,46 @@
                 "stream": "claude_code_limits",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "5h, %", "alias": "y_axis_1", "column": "five_hour_used", "color": null }],
+                "y": [
+                  {
+                    "label": "5h, %",
+                    "alias": "y_axis_1",
+                    "column": "five_hour_used",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "", "min": 0, "max": 100 }
+              "config": {
+                "promql_legend": "",
+                "min": 0,
+                "max": 100
+              }
             }
           ],
-          "layout": { "x": 0, "y": 0, "w": 48, "h": 14, "i": 1 }
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "w": 48,
+            "h": 14,
+            "i": 1
+          }
         },
         {
           "id": "l_7d",
           "type": "gauge",
-          "title": "Недельное окно",
-          "description": "Последнее известное значение",
-          "config": { "show_legends": false, "unit": "percent", "decimals": 1 },
+          "title": "Weekly window",
+          "description": "Last known value",
+          "config": {
+            "show_legends": false,
+            "unit": "percent",
+            "decimals": 1
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -48,21 +77,46 @@
                 "stream": "claude_code_limits",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "7d, %", "alias": "y_axis_1", "column": "seven_day_used", "color": null }],
+                "y": [
+                  {
+                    "label": "7d, %",
+                    "alias": "y_axis_1",
+                    "column": "seven_day_used",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "", "min": 0, "max": 100 }
+              "config": {
+                "promql_legend": "",
+                "min": 0,
+                "max": 100
+              }
             }
           ],
-          "layout": { "x": 48, "y": 0, "w": 48, "h": 14, "i": 2 }
+          "layout": {
+            "x": 48,
+            "y": 0,
+            "w": 48,
+            "h": 14,
+            "i": 2
+          }
         },
         {
           "id": "l_5h_reset",
           "type": "metric",
-          "title": "До сброса 5h окна",
+          "title": "Until the 5h window resets",
           "description": "",
-          "config": { "show_legends": false, "unit": "seconds", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "seconds",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -72,21 +126,44 @@
                 "stream": "claude_code_limits",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "Секунд", "alias": "y_axis_1", "column": "five_hour_resets_at", "color": null }],
+                "y": [
+                  {
+                    "label": "Seconds",
+                    "alias": "y_axis_1",
+                    "column": "five_hour_resets_at",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 96, "y": 0, "w": 48, "h": 14, "i": 3 }
+          "layout": {
+            "x": 96,
+            "y": 0,
+            "w": 48,
+            "h": 14,
+            "i": 3
+          }
         },
         {
           "id": "l_7d_reset",
           "type": "metric",
-          "title": "До сброса недельного окна",
+          "title": "Until the weekly window resets",
           "description": "",
-          "config": { "show_legends": false, "unit": "seconds", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "seconds",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -96,20 +173,39 @@
                 "stream": "claude_code_limits",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "Секунд", "alias": "y_axis_1", "column": "seven_day_resets_at", "color": null }],
+                "y": [
+                  {
+                    "label": "Seconds",
+                    "alias": "y_axis_1",
+                    "column": "seven_day_resets_at",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 144, "y": 0, "w": 48, "h": 14, "i": 4 }
+          "layout": {
+            "x": 144,
+            "y": 0,
+            "w": 48,
+            "h": 14,
+            "i": 4
+          }
         },
         {
           "id": "l_over_time",
           "type": "line",
-          "title": "Расход лимитов во времени",
-          "description": "Пилообразный график: значение падает в момент сброса окна",
+          "title": "Limit usage over time",
+          "description": "Sawtooth chart: the value drops when the window resets",
           "config": {
             "show_legends": true,
             "legends_position": "bottom",
@@ -127,25 +223,57 @@
               "fields": {
                 "stream": "claude_code_limits",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "_timestamp", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "_timestamp",
+                    "color": null
+                  }
+                ],
                 "y": [
-                  { "label": "5 часов, %", "alias": "y_axis_1", "column": "five_hour_used", "color": null },
-                  { "label": "Неделя, %", "alias": "y_axis_2", "column": "seven_day_used", "color": null }
+                  {
+                    "label": "5 hours, %",
+                    "alias": "y_axis_1",
+                    "column": "five_hour_used",
+                    "color": null
+                  },
+                  {
+                    "label": "Week, %",
+                    "alias": "y_axis_2",
+                    "column": "seven_day_used",
+                    "color": null
+                  }
                 ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 14, "w": 192, "h": 20, "i": 5 }
+          "layout": {
+            "x": 0,
+            "y": 14,
+            "w": 192,
+            "h": 20,
+            "i": 5
+          }
         },
         {
           "id": "l_raw",
           "type": "table",
-          "title": "Замеры",
-          "description": "Раз в минуту, пока открыта сессия Claude Code",
-          "config": { "show_legends": false, "unit": "default" },
+          "title": "Measurements",
+          "description": "Once a minute while a Claude Code session is open",
+          "config": {
+            "show_legends": false,
+            "unit": "default"
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -154,22 +282,71 @@
               "fields": {
                 "stream": "claude_code_limits",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "_timestamp", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "_timestamp",
+                    "color": null
+                  }
+                ],
                 "y": [
-                  { "label": "5h, %", "alias": "y_axis_1", "column": "five_hour_used", "color": null },
-                  { "label": "7d, %", "alias": "y_axis_2", "column": "seven_day_used", "color": null },
-                  { "label": "Источник", "alias": "y_axis_3", "column": "source", "color": null },
-                  { "label": "Хост", "alias": "y_axis_4", "column": "host", "color": null },
-                  { "label": "Модель (неделя)", "alias": "y_axis_5", "column": "weekly_scoped_model", "color": null },
-                  { "label": "%", "alias": "y_axis_6", "column": "weekly_scoped_used", "color": null }
+                  {
+                    "label": "5h, %",
+                    "alias": "y_axis_1",
+                    "column": "five_hour_used",
+                    "color": null
+                  },
+                  {
+                    "label": "7d, %",
+                    "alias": "y_axis_2",
+                    "column": "seven_day_used",
+                    "color": null
+                  },
+                  {
+                    "label": "Source",
+                    "alias": "y_axis_3",
+                    "column": "source",
+                    "color": null
+                  },
+                  {
+                    "label": "Host",
+                    "alias": "y_axis_4",
+                    "column": "host",
+                    "color": null
+                  },
+                  {
+                    "label": "Model (weekly)",
+                    "alias": "y_axis_5",
+                    "column": "weekly_scoped_model",
+                    "color": null
+                  },
+                  {
+                    "label": "%",
+                    "alias": "y_axis_6",
+                    "column": "weekly_scoped_used",
+                    "color": null
+                  }
                 ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 34, "w": 192, "h": 20, "i": 6 }
+          "layout": {
+            "x": 0,
+            "y": 34,
+            "w": 192,
+            "h": 20,
+            "i": 6
+          }
         }
       ]
     }

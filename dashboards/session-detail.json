@@ -1,7 +1,7 @@
 {
   "version": 8,
-  "title": "Claude Code · Сессия",
-  "description": "Что происходило внутри одной сессии: диалог, инструменты, запросы к API",
+  "title": "Claude Code · Session",
+  "description": "What happened inside a single session: dialogue, tools, API requests",
   "role": "",
   "owner": "",
   "variables": {
@@ -9,7 +9,7 @@
       {
         "type": "query_values",
         "name": "session_id",
-        "label": "Сессия",
+        "label": "Session",
         "query_data": {
           "stream_type": "logs",
           "stream": "claude_code",
@@ -25,14 +25,19 @@
   "tabs": [
     {
       "tabId": "default",
-      "name": "Сессия",
+      "name": "Session",
       "panels": [
         {
           "id": "s_cost",
           "type": "metric",
-          "title": "Стоимость сессии",
+          "title": "Session cost",
           "description": "",
-          "config": { "show_legends": false, "unit": "custom", "unit_custom": "$", "decimals": 4 },
+          "config": {
+            "show_legends": false,
+            "unit": "custom",
+            "unit_custom": "$",
+            "decimals": 4
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -42,21 +47,44 @@
                 "stream": "claude_code",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "USD", "alias": "y_axis_1", "column": "cost_usd", "color": null }],
+                "y": [
+                  {
+                    "label": "USD",
+                    "alias": "y_axis_1",
+                    "column": "cost_usd",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 0, "w": 48, "h": 10, "i": 1 }
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "w": 48,
+            "h": 10,
+            "i": 1
+          }
         },
         {
           "id": "s_prompts",
           "type": "metric",
-          "title": "Промптов",
+          "title": "Prompts",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -66,21 +94,44 @@
                 "stream": "claude_code",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "Промптов", "alias": "y_axis_1", "column": "event_name", "color": null }],
+                "y": [
+                  {
+                    "label": "Prompts",
+                    "alias": "y_axis_1",
+                    "column": "event_name",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 48, "y": 0, "w": 48, "h": 10, "i": 2 }
+          "layout": {
+            "x": 48,
+            "y": 0,
+            "w": 48,
+            "h": 10,
+            "i": 2
+          }
         },
         {
           "id": "s_tools",
           "type": "metric",
-          "title": "Вызовов инструментов",
+          "title": "Tool calls",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -90,21 +141,44 @@
                 "stream": "claude_code",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "Вызовов", "alias": "y_axis_1", "column": "event_name", "color": null }],
+                "y": [
+                  {
+                    "label": "Calls",
+                    "alias": "y_axis_1",
+                    "column": "event_name",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 96, "y": 0, "w": 48, "h": 10, "i": 3 }
+          "layout": {
+            "x": 96,
+            "y": 0,
+            "w": 48,
+            "h": 10,
+            "i": 3
+          }
         },
         {
           "id": "s_duration",
           "type": "metric",
-          "title": "Длительность",
-          "description": "От первого до последнего события",
-          "config": { "show_legends": false, "unit": "seconds", "decimals": 0 },
+          "title": "Duration",
+          "description": "From the first to the last event",
+          "config": {
+            "show_legends": false,
+            "unit": "seconds",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -114,21 +188,44 @@
                 "stream": "claude_code",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "Секунды", "alias": "y_axis_1", "column": "_timestamp", "color": null }],
+                "y": [
+                  {
+                    "label": "Seconds",
+                    "alias": "y_axis_1",
+                    "column": "_timestamp",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 144, "y": 0, "w": 48, "h": 10, "i": 4 }
+          "layout": {
+            "x": 144,
+            "y": 0,
+            "w": 48,
+            "h": 10,
+            "i": 4
+          }
         },
         {
           "id": "s_dialog",
           "type": "table",
-          "title": "Диалог: промпты и ответы",
-          "description": "Требует OTEL_LOG_USER_PROMPTS=1",
-          "config": { "show_legends": false, "unit": "default", "wrap_table_cells": true },
+          "title": "Dialogue: prompts and responses",
+          "description": "Requires OTEL_LOG_USER_PROMPTS=1",
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "wrap_table_cells": true
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -137,25 +234,58 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "event_timestamp", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "event_timestamp",
+                    "color": null
+                  }
+                ],
                 "y": [
-                  { "label": "Тип", "alias": "y_axis_1", "column": "event_name", "color": null },
-                  { "label": "Текст", "alias": "y_axis_2", "column": "prompt", "color": null }
+                  {
+                    "label": "Type",
+                    "alias": "y_axis_1",
+                    "column": "event_name",
+                    "color": null
+                  },
+                  {
+                    "label": "Text",
+                    "alias": "y_axis_2",
+                    "column": "prompt",
+                    "color": null
+                  }
                 ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 10, "w": 192, "h": 22, "i": 5 }
+          "layout": {
+            "x": 0,
+            "y": 10,
+            "w": 192,
+            "h": 22,
+            "i": 5
+          }
         },
         {
           "id": "s_tools_table",
           "type": "table",
-          "title": "Вызовы инструментов",
+          "title": "Tool call log",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "wrap_table_cells": true },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "wrap_table_cells": true
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -164,26 +294,64 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "event_timestamp", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "event_timestamp",
+                    "color": null
+                  }
+                ],
                 "y": [
-                  { "label": "Инструмент", "alias": "y_axis_1", "column": "tool_name", "color": null },
-                  { "label": "Решение", "alias": "y_axis_2", "column": "decision", "color": null },
-                  { "label": "Источник", "alias": "y_axis_3", "column": "source", "color": null }
+                  {
+                    "label": "Tool",
+                    "alias": "y_axis_1",
+                    "column": "tool_name",
+                    "color": null
+                  },
+                  {
+                    "label": "Decision",
+                    "alias": "y_axis_2",
+                    "column": "decision",
+                    "color": null
+                  },
+                  {
+                    "label": "Source",
+                    "alias": "y_axis_3",
+                    "column": "source",
+                    "color": null
+                  }
                 ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 32, "w": 96, "h": 18, "i": 6 }
+          "layout": {
+            "x": 0,
+            "y": 32,
+            "w": 96,
+            "h": 18,
+            "i": 6
+          }
         },
         {
           "id": "s_tools_bar",
           "type": "h-bar",
-          "title": "Инструменты по частоте",
+          "title": "Tools by frequency",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -192,22 +360,53 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Инструмент", "alias": "x_axis_1", "column": "tool_name", "color": null }],
-                "y": [{ "label": "Вызовов", "alias": "y_axis_1", "column": "tool_name", "color": null }],
+                "x": [
+                  {
+                    "label": "Tool",
+                    "alias": "x_axis_1",
+                    "column": "tool_name",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "Calls",
+                    "alias": "y_axis_1",
+                    "column": "tool_name",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 96, "y": 32, "w": 96, "h": 18, "i": 7 }
+          "layout": {
+            "x": 96,
+            "y": 32,
+            "w": 96,
+            "h": 18,
+            "i": 7
+          }
         },
         {
           "id": "s_tokens",
           "type": "stacked",
-          "title": "Токены в сессии",
-          "description": "По событиям api_request",
-          "config": { "show_legends": true, "legends_position": "bottom", "unit": "default", "decimals": 0 },
+          "title": "Tokens in session",
+          "description": "From api_request events",
+          "config": {
+            "show_legends": true,
+            "legends_position": "bottom",
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -216,25 +415,59 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "_timestamp", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "_timestamp",
+                    "color": null
+                  }
+                ],
                 "y": [
-                  { "label": "input", "alias": "y_axis_1", "column": "input_tokens", "color": null },
-                  { "label": "output", "alias": "y_axis_2", "column": "output_tokens", "color": null }
+                  {
+                    "label": "input",
+                    "alias": "y_axis_1",
+                    "column": "input_tokens",
+                    "color": null
+                  },
+                  {
+                    "label": "output",
+                    "alias": "y_axis_2",
+                    "column": "output_tokens",
+                    "color": null
+                  }
                 ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 50, "w": 96, "h": 18, "i": 8 }
+          "layout": {
+            "x": 0,
+            "y": 50,
+            "w": 96,
+            "h": 18,
+            "i": 8
+          }
         },
         {
           "id": "s_latency",
           "type": "line",
-          "title": "Задержка запросов к API",
+          "title": "API request latency",
           "description": "",
-          "config": { "show_legends": false, "unit": "milliseconds", "decimals": 0, "show_symbol": true },
+          "config": {
+            "show_legends": false,
+            "unit": "milliseconds",
+            "decimals": 0,
+            "show_symbol": true
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -243,22 +476,52 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "_timestamp", "color": null }],
-                "y": [{ "label": "мс", "alias": "y_axis_1", "column": "duration_ms", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "_timestamp",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "ms",
+                    "alias": "y_axis_1",
+                    "column": "duration_ms",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 96, "y": 50, "w": 96, "h": 18, "i": 9 }
+          "layout": {
+            "x": 96,
+            "y": 50,
+            "w": 96,
+            "h": 18,
+            "i": 9
+          }
         },
         {
           "id": "s_timeline",
           "type": "table",
-          "title": "Все события сессии",
+          "title": "All session events",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "wrap_table_cells": true },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "wrap_table_cells": true
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -267,20 +530,59 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "event_timestamp", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "event_timestamp",
+                    "color": null
+                  }
+                ],
                 "y": [
-                  { "label": "Событие", "alias": "y_axis_1", "column": "event_name", "color": null },
-                  { "label": "Модель", "alias": "y_axis_2", "column": "model", "color": null },
-                  { "label": "мс", "alias": "y_axis_3", "column": "duration_ms", "color": null },
-                  { "label": "Инструмент", "alias": "y_axis_4", "column": "tool_name", "color": null }
+                  {
+                    "label": "Event",
+                    "alias": "y_axis_1",
+                    "column": "event_name",
+                    "color": null
+                  },
+                  {
+                    "label": "Model",
+                    "alias": "y_axis_2",
+                    "column": "model",
+                    "color": null
+                  },
+                  {
+                    "label": "ms",
+                    "alias": "y_axis_3",
+                    "column": "duration_ms",
+                    "color": null
+                  },
+                  {
+                    "label": "Tool",
+                    "alias": "y_axis_4",
+                    "column": "tool_name",
+                    "color": null
+                  }
                 ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 68, "w": 192, "h": 22, "i": 10 }
+          "layout": {
+            "x": 0,
+            "y": 68,
+            "w": 192,
+            "h": 22,
+            "i": 10
+          }
         }
       ]
     }

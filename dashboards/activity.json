@@ -1,20 +1,24 @@
 {
   "version": 8,
-  "title": "Claude Code · Активность",
-  "description": "События, промпты, запросы к API и хуки",
+  "title": "Claude Code · Activity",
+  "description": "Events, prompts, API requests and hooks",
   "role": "",
   "owner": "",
   "tabs": [
     {
       "tabId": "default",
-      "name": "Активность",
+      "name": "Activity",
       "panels": [
         {
           "id": "prompts_total",
           "type": "metric",
-          "title": "Промптов отправлено",
+          "title": "Prompts submitted",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -24,21 +28,44 @@
                 "stream": "claude_code",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "Промпты", "alias": "y_axis_1", "column": "event_name", "color": null }],
+                "y": [
+                  {
+                    "label": "Prompts",
+                    "alias": "y_axis_1",
+                    "column": "event_name",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 0, "w": 64, "h": 10, "i": 1 }
+          "layout": {
+            "x": 0,
+            "y": 0,
+            "w": 64,
+            "h": 10,
+            "i": 1
+          }
         },
         {
           "id": "api_requests_total",
           "type": "metric",
-          "title": "Запросов к API",
+          "title": "API requests",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -48,21 +75,44 @@
                 "stream": "claude_code",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "Запросы", "alias": "y_axis_1", "column": "event_name", "color": null }],
+                "y": [
+                  {
+                    "label": "Requests",
+                    "alias": "y_axis_1",
+                    "column": "event_name",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 64, "y": 0, "w": 64, "h": 10, "i": 2 }
+          "layout": {
+            "x": 64,
+            "y": 0,
+            "w": 64,
+            "h": 10,
+            "i": 2
+          }
         },
         {
           "id": "api_latency_avg",
           "type": "metric",
-          "title": "Средняя задержка API",
+          "title": "Average API latency",
           "description": "",
-          "config": { "show_legends": false, "unit": "milliseconds", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "milliseconds",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -72,21 +122,45 @@
                 "stream": "claude_code",
                 "stream_type": "logs",
                 "x": [],
-                "y": [{ "label": "мс", "alias": "y_axis_1", "column": "duration_ms", "color": null }],
+                "y": [
+                  {
+                    "label": "ms",
+                    "alias": "y_axis_1",
+                    "column": "duration_ms",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 128, "y": 0, "w": 64, "h": 10, "i": 3 }
+          "layout": {
+            "x": 128,
+            "y": 0,
+            "w": 64,
+            "h": 10,
+            "i": 3
+          }
         },
         {
           "id": "events_over_time",
           "type": "stacked",
-          "title": "События во времени",
+          "title": "Events over time",
           "description": "",
-          "config": { "show_legends": true, "legends_position": "bottom", "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": true,
+            "legends_position": "bottom",
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -95,23 +169,60 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "_timestamp", "color": null }],
-                "y": [{ "label": "Событий", "alias": "y_axis_1", "column": "event_name", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "_timestamp",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "Events",
+                    "alias": "y_axis_1",
+                    "column": "event_name",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "breakdown": [{ "label": "Событие", "alias": "breakdown_1", "column": "event_name", "color": null }],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "breakdown": [
+                  {
+                    "label": "Event",
+                    "alias": "breakdown_1",
+                    "column": "event_name",
+                    "color": null
+                  }
+                ],
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 10, "w": 96, "h": 18, "i": 4 }
+          "layout": {
+            "x": 0,
+            "y": 10,
+            "w": 96,
+            "h": 18,
+            "i": 4
+          }
         },
         {
           "id": "events_by_name",
           "type": "h-bar",
-          "title": "События по типам",
+          "title": "Events by type",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -120,22 +231,54 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Событие", "alias": "x_axis_1", "column": "event_name", "color": null }],
-                "y": [{ "label": "Событий", "alias": "y_axis_1", "column": "event_name", "color": null }],
+                "x": [
+                  {
+                    "label": "Event",
+                    "alias": "x_axis_1",
+                    "column": "event_name",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "Events",
+                    "alias": "y_axis_1",
+                    "column": "event_name",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 96, "y": 10, "w": 96, "h": 18, "i": 5 }
+          "layout": {
+            "x": 96,
+            "y": 10,
+            "w": 96,
+            "h": 18,
+            "i": 5
+          }
         },
         {
           "id": "api_latency_over_time",
           "type": "line",
-          "title": "Задержка API во времени по моделям",
+          "title": "API latency over time by model",
           "description": "",
-          "config": { "show_legends": true, "legends_position": "bottom", "unit": "milliseconds", "decimals": 0, "show_symbol": true },
+          "config": {
+            "show_legends": true,
+            "legends_position": "bottom",
+            "unit": "milliseconds",
+            "decimals": 0,
+            "show_symbol": true
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -144,23 +287,60 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "_timestamp", "color": null }],
-                "y": [{ "label": "мс", "alias": "y_axis_1", "column": "duration_ms", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "_timestamp",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "ms",
+                    "alias": "y_axis_1",
+                    "column": "duration_ms",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "breakdown": [{ "label": "Модель", "alias": "breakdown_1", "column": "model", "color": null }],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "breakdown": [
+                  {
+                    "label": "Model",
+                    "alias": "breakdown_1",
+                    "column": "model",
+                    "color": null
+                  }
+                ],
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 28, "w": 96, "h": 18, "i": 6 }
+          "layout": {
+            "x": 0,
+            "y": 28,
+            "w": 96,
+            "h": 18,
+            "i": 6
+          }
         },
         {
           "id": "hooks_by_name",
           "type": "h-bar",
-          "title": "Хуки: срабатывания",
+          "title": "Hook executions",
           "description": "",
-          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "decimals": 0
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -169,22 +349,52 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Хук", "alias": "x_axis_1", "column": "hook_name", "color": null }],
-                "y": [{ "label": "Срабатываний", "alias": "y_axis_1", "column": "hook_name", "color": null }],
+                "x": [
+                  {
+                    "label": "Hook",
+                    "alias": "x_axis_1",
+                    "column": "hook_name",
+                    "color": null
+                  }
+                ],
+                "y": [
+                  {
+                    "label": "Executions",
+                    "alias": "y_axis_1",
+                    "column": "hook_name",
+                    "color": null
+                  }
+                ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 96, "y": 28, "w": 96, "h": 18, "i": 7 }
+          "layout": {
+            "x": 96,
+            "y": 28,
+            "w": 96,
+            "h": 18,
+            "i": 7
+          }
         },
         {
           "id": "recent_prompts",
           "type": "table",
-          "title": "Последние промпты",
-          "description": "Требует OTEL_LOG_USER_PROMPTS=1",
-          "config": { "show_legends": false, "unit": "default", "wrap_table_cells": true },
+          "title": "Recent prompts",
+          "description": "Requires OTEL_LOG_USER_PROMPTS=1",
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "wrap_table_cells": true
+          },
           "queryType": "sql",
           "queries": [
             {
@@ -193,18 +403,47 @@
               "fields": {
                 "stream": "claude_code",
                 "stream_type": "logs",
-                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "event_timestamp", "color": null }],
+                "x": [
+                  {
+                    "label": "Time",
+                    "alias": "x_axis_1",
+                    "column": "event_timestamp",
+                    "color": null
+                  }
+                ],
                 "y": [
-                  { "label": "Длина", "alias": "y_axis_1", "column": "prompt_length", "color": null },
-                  { "label": "Промпт", "alias": "y_axis_2", "column": "prompt", "color": null }
+                  {
+                    "label": "Length",
+                    "alias": "y_axis_1",
+                    "column": "prompt_length",
+                    "color": null
+                  },
+                  {
+                    "label": "Prompt",
+                    "alias": "y_axis_2",
+                    "column": "prompt",
+                    "color": null
+                  }
                 ],
                 "z": [],
-                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+                "filter": {
+                  "filterType": "group",
+                  "logicalOperator": "AND",
+                  "conditions": []
+                }
               },
-              "config": { "promql_legend": "" }
+              "config": {
+                "promql_legend": ""
+              }
             }
           ],
-          "layout": { "x": 0, "y": 46, "w": 192, "h": 18, "i": 8 }
+          "layout": {
+            "x": 0,
+            "y": 46,
+            "w": 192,
+            "h": 18,
+            "i": 8
+          }
         }
       ]
     }
