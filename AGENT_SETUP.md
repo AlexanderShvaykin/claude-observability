@@ -31,48 +31,43 @@
 - Порт 5080 должен быть свободен; если занят, поменяй маппинг в `docker-compose.yml`
   и дальше используй новый порт везде.
 
-## 3. Включить телеметрию Claude Code
+## 3. Прописать телеметрию в Claude Code
 
-Посчитай токен: `B64=$(printf '%s' "$ZO_ROOT_USER_EMAIL:$ZO_ROOT_USER_PASSWORD" | base64)`.
+Запусти `./install.sh` — он идемпотентно правит `~/.claude/settings.json` через jq:
+добавляет env-блок телеметрии, подключает сбор лимитов подписки через statusline-обёртку
+и кладёт рядом бэкап. Существующие настройки пользователя сохраняются; если на хосте
+уже был свой statusline, он переезжает в `CLAUDE_OBS_STATUSLINE` и вызывается обёрткой,
+так что строка статуса не изменится.
 
-Добавь в `~/.claude/settings.json` блок `env` — именно **добавь через jq**, не перезаписывай
-файл целиком, там уже есть настройки пользователя:
+- Спроси пользователя, писать ли в базу **тексты промптов и ответов**. Если нет —
+  `./install.sh --no-prompts`.
+- Если сбор лимитов не нужен или statusline трогать нельзя — `./install.sh --no-limits`.
+- Если OpenObserve не на `localhost:5080` — `--base-url http://host:port`.
 
-```json
-"env": {
-  "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
-  "OTEL_METRICS_EXPORTER": "otlp",
-  "OTEL_LOGS_EXPORTER": "otlp",
-  "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
-  "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:5080/api/default",
-  "OTEL_EXPORTER_OTLP_HEADERS": "Authorization=Basic <B64>,stream-name=claude_code",
-  "OTEL_METRIC_EXPORT_INTERVAL": "10000",
-  "OTEL_LOGS_EXPORT_INTERVAL": "5000",
-  "OTEL_LOG_USER_PROMPTS": "1"
-}
-```
+Проверь результат: `jq '{env, statusLine}' ~/.claude/settings.json` — и убедись, что
+прежние настройки пользователя на месте.
 
-Важное:
+Не переписывай `settings.json` целиком и не редактируй его вручную — там живут
+плагины, хуки и permissions пользователя.
 
-- `OTEL_EXPORTER_OTLP_ENDPOINT` — база **без** завершающего слэша, SDK сам допишет
-  `/v1/metrics` и `/v1/logs`. Со слэшем будет 404.
-- `stream-name=claude_code` разводит события в отдельный stream; без него они падают
-  в общий `default`.
-- `OTEL_LOG_USER_PROMPTS=1` пишет в базу **тексты промптов и ответов**. Спроси у
-  пользователя, нужно ли это; если нет — убери строку.
+## 4. Про лимиты подписки: не пытайся заменить statusline хуками
 
-## 4. Подключить сбор лимитов подписки (опционально, только для Pro/Max)
+Это уже проверено эмпирически, не трать время:
 
-Лимитов нет в OTel-телеметрии — они приходят только в JSON для statusline
-(`rate_limits.five_hour` / `.seven_day`). Их собирает `statusline-ship-limits.sh`.
+- хуки (`SessionStart`, `UserPromptSubmit`, `Stop`, `SessionEnd`) получают только
+  `session_id`, `prompt_id`, `transcript_path`, `cwd`, `permission_mode` — лимитов нет;
+- в транскриптах сессий их тоже нет;
+- `cachedUsageUtilization` в `~/.claude.json` обновляется редко и бывает протухшим на сутки.
 
-- Если у пользователя уже есть свой statusline-скрипт, обёртка вызовет его сама
-  (по умолчанию `~/.claude/statusline-command.sh`), вывод строки не изменится.
-- Пропиши в `~/.claude/settings.json`:
-  `"statusLine": { "type": "command", "command": "bash <путь к репо>/statusline-ship-limits.sh" }`
-- Проверить, не дожидаясь живой сессии: скорми скрипту синтетический JSON с полем
-  `rate_limits` на stdin и убедись, что в OpenObserve появился stream `claude_code_limits`.
-  Тестовые записи потом удали: `DELETE /api/default/streams/claude_code_limits?type=logs`.
+Единственный свежий источник — JSON, который Claude Code отдаёт statusline-скрипту.
+Транспорт вынесен в `ship-limits.sh` (читает JSON со stdin, шлёт не чаще раза в минуту),
+обёртка `statusline-ship-limits.sh` только рисует строку и кормит транспорт.
+
+Проверить, не дожидаясь живой сессии: скорми обёртке синтетический JSON с полем
+`rate_limits` на stdin и убедись, что в OpenObserve появился stream `claude_code_limits`.
+Тестовые записи потом удали: `DELETE /api/default/streams/claude_code_limits?type=logs`.
+Учти: лимиты собираются только в интерактивных сессиях — statusline не запускается
+в headless-режиме (`claude -p`).
 
 ## 5. Импортировать дашборды
 

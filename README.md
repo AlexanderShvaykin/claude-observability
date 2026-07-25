@@ -16,6 +16,19 @@ docker compose down       # остановить (данные остаются 
 OpenObserve не стартует, если email без домена верхнего уровня или пароль слабее,
 чем 8–128 символов с заглавной, строчной, цифрой и спецсимволом.
 
+Прописать телеметрию в Claude Code:
+
+```bash
+./install.sh                  # env-блок + сбор лимитов через statusline
+./install.sh --no-prompts     # без текстов промптов и ответов
+./install.sh --no-limits      # не трогать statusline
+./install.sh --base-url http://host:5080 --org default
+```
+
+Скрипт правит `~/.claude/settings.json` через jq: существующие настройки сохраняются,
+прежний statusline не теряется (переезжает в `CLAUDE_OBS_STATUSLINE`, обёртка вызывает
+его сама), рядом кладётся бэкап. Повторный запуск ничего не меняет.
+
 Развернуть то же самое на другом хосте: отдать агенту Claude Code промпт из
 [`AGENT_SETUP.md`](AGENT_SETUP.md).
 
@@ -137,14 +150,24 @@ ID берётся из адресной строки при открытии д�
 
 Поле есть только у подписчиков Claude.ai (Pro/Max) и появляется после первого ответа API.
 
-Поэтому лимиты забирает `statusline-ship-limits.sh`: он вызывает старый
-`~/.claude/statusline-command.sh` (вывод строки не меняется) и не чаще **раза в минуту**
-шлёт `rate_limits` в OpenObserve, в stream `claude_code_limits`. Подключено в
-`~/.claude/settings.json`:
+**Почему не хуки.** Проверено эмпирически (временный проект с хуками, дампившими stdin):
+`SessionStart`, `UserPromptSubmit`, `Stop` и `SessionEnd` получают только `session_id`,
+`prompt_id`, `transcript_path`, `cwd`, `permission_mode` и поля своего события — ни
+лимитов, ни расхода там нет. Транскрипты сессий (`~/.claude/projects/*/*.jsonl`) лимитов
+тоже не содержат, а `cachedUsageUtilization` в `~/.claude.json` обновляется редко
+(в замере — двухсуточной давности), поэтому как источник не годится.
 
-```json
-"statusLine": { "type": "command", "command": "bash ~/develop/claude-observability/statusline-ship-limits.sh" }
-```
+Сбор разделён на два файла:
+
+- `ship-limits.sh` — транспорт: читает JSON со stdin, не чаще **раза в минуту** отправляет
+  `rate_limits` в stream `claude_code_limits`. Ничего не печатает и ни от чего не зависит;
+  если появится другой источник тех же данных, его можно подключить к этому же скрипту.
+- `statusline-ship-limits.sh` — обёртка statusline: скармливает JSON транспорту и рисует
+  строку. Если на хосте есть свой statusline — вызывает его (путь или команда с аргументами
+  в `CLAUDE_OBS_STATUSLINE`, `~` разворачивается), вывод не меняется. Если своего нет —
+  печатает минимальную строку `Opus 5 · 5h:63% · ctx:7%`.
+
+Подключается через `./install.sh`, руками ничего править не нужно.
 
 Дашборд **Claude Code · Лимиты подписки**: два gauge (5-часовое и недельное окно),
 время до сброса каждого окна, график расхода во времени и таблица замеров.
