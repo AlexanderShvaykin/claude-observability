@@ -1,0 +1,162 @@
+{
+  "version": 8,
+  "title": "Claude Code · Сессии",
+  "description": "Список сессий, клик по строке открывает детальный дашборд сессии",
+  "role": "",
+  "owner": "",
+  "tabs": [
+    {
+      "tabId": "default",
+      "name": "Сессии",
+      "panels": [
+        {
+          "id": "sessions_active",
+          "type": "metric",
+          "title": "Активны сейчас",
+          "description": "Сессии с событиями за последние 5 минут",
+          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "queryType": "sql",
+          "queries": [
+            {
+              "query": "SELECT COUNT(DISTINCT session_id) as \"y_axis_1\" FROM \"claude_code\" WHERE _timestamp >= CAST(to_unixtime(now()) * 1000000 AS BIGINT) - 300000000",
+              "customQuery": true,
+              "fields": {
+                "stream": "claude_code",
+                "stream_type": "logs",
+                "x": [],
+                "y": [{ "label": "Активных", "alias": "y_axis_1", "column": "session_id", "color": null }],
+                "z": [],
+                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+              },
+              "config": { "promql_legend": "" }
+            }
+          ],
+          "layout": { "x": 0, "y": 0, "w": 64, "h": 10, "i": 1 }
+        },
+        {
+          "id": "sessions_total",
+          "type": "metric",
+          "title": "Сессий за период",
+          "description": "",
+          "config": { "show_legends": false, "unit": "default", "decimals": 0 },
+          "queryType": "sql",
+          "queries": [
+            {
+              "query": "SELECT COUNT(DISTINCT session_id) as \"y_axis_1\" FROM \"claude_code\"",
+              "customQuery": true,
+              "fields": {
+                "stream": "claude_code",
+                "stream_type": "logs",
+                "x": [],
+                "y": [{ "label": "Сессий", "alias": "y_axis_1", "column": "session_id", "color": null }],
+                "z": [],
+                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+              },
+              "config": { "promql_legend": "" }
+            }
+          ],
+          "layout": { "x": 64, "y": 0, "w": 64, "h": 10, "i": 2 }
+        },
+        {
+          "id": "sessions_cost",
+          "type": "metric",
+          "title": "Стоимость за период",
+          "description": "",
+          "config": { "show_legends": false, "unit": "custom", "unit_custom": "$", "decimals": 3 },
+          "queryType": "sql",
+          "queries": [
+            {
+              "query": "SELECT SUM(CAST(cost_usd AS DOUBLE)) as \"y_axis_1\" FROM \"claude_code\" WHERE event_name = 'api_request'",
+              "customQuery": true,
+              "fields": {
+                "stream": "claude_code",
+                "stream_type": "logs",
+                "x": [],
+                "y": [{ "label": "USD", "alias": "y_axis_1", "column": "cost_usd", "color": null }],
+                "z": [],
+                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+              },
+              "config": { "promql_legend": "" }
+            }
+          ],
+          "layout": { "x": 128, "y": 0, "w": 64, "h": 10, "i": 3 }
+        },
+        {
+          "id": "sessions_table",
+          "type": "table",
+          "title": "Сессии (клик по строке → детали сессии)",
+          "description": "Статус «активна» = было событие за последние 5 минут",
+          "config": {
+            "show_legends": false,
+            "unit": "default",
+            "wrap_table_cells": true,
+            "drilldown": [
+              {
+                "name": "Открыть сессию",
+                "type": "byDashboard",
+                "targetBlank": false,
+                "findBy": "name",
+                "data": {
+                  "folder": "default",
+                  "dashboard": "Claude Code · Сессия",
+                  "tab": "Сессия",
+                  "passAllVariables": false,
+                  "variables": [{ "name": "session_id", "value": "${row.field[\"Сессия\"]}" }]
+                }
+              }
+            ]
+          },
+          "queryType": "sql",
+          "queries": [
+            {
+              "query": "SELECT session_id as \"x_axis_1\", CASE WHEN MAX(_timestamp) >= CAST(to_unixtime(now()) * 1000000 AS BIGINT) - 300000000 THEN '● активна' ELSE '—' END as \"y_axis_1\", MAX(event_timestamp) as \"y_axis_2\", SUM(CASE WHEN event_name = 'user_prompt' THEN 1 ELSE 0 END) as \"y_axis_3\", SUM(CASE WHEN event_name = 'tool_decision' THEN 1 ELSE 0 END) as \"y_axis_4\", SUM(CAST(cost_usd AS DOUBLE)) as \"y_axis_5\", MAX(model) as \"y_axis_6\" FROM \"claude_code\" GROUP BY x_axis_1 ORDER BY y_axis_2 DESC",
+              "customQuery": true,
+              "fields": {
+                "stream": "claude_code",
+                "stream_type": "logs",
+                "x": [{ "label": "Сессия", "alias": "x_axis_1", "column": "session_id", "color": null }],
+                "y": [
+                  { "label": "Статус", "alias": "y_axis_1", "column": "event_name", "color": null },
+                  { "label": "Последняя активность", "alias": "y_axis_2", "column": "event_timestamp", "color": null },
+                  { "label": "Промптов", "alias": "y_axis_3", "column": "event_name", "color": null },
+                  { "label": "Инструментов", "alias": "y_axis_4", "column": "event_name", "color": null },
+                  { "label": "USD", "alias": "y_axis_5", "column": "cost_usd", "color": null },
+                  { "label": "Модель", "alias": "y_axis_6", "column": "model", "color": null }
+                ],
+                "z": [],
+                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+              },
+              "config": { "promql_legend": "" }
+            }
+          ],
+          "layout": { "x": 0, "y": 10, "w": 192, "h": 22, "i": 4 }
+        },
+        {
+          "id": "sessions_activity",
+          "type": "stacked",
+          "title": "Активность по сессиям во времени",
+          "description": "",
+          "config": { "show_legends": true, "legends_position": "bottom", "unit": "default", "decimals": 0 },
+          "queryType": "sql",
+          "queries": [
+            {
+              "query": "SELECT histogram(_timestamp) as \"x_axis_1\", COUNT(*) as \"y_axis_1\", session_id as \"breakdown_1\" FROM \"claude_code\" GROUP BY x_axis_1, breakdown_1 ORDER BY x_axis_1",
+              "customQuery": true,
+              "fields": {
+                "stream": "claude_code",
+                "stream_type": "logs",
+                "x": [{ "label": "Время", "alias": "x_axis_1", "column": "_timestamp", "color": null }],
+                "y": [{ "label": "Событий", "alias": "y_axis_1", "column": "event_name", "color": null }],
+                "z": [],
+                "breakdown": [{ "label": "Сессия", "alias": "breakdown_1", "column": "session_id", "color": null }],
+                "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
+              },
+              "config": { "promql_legend": "" }
+            }
+          ],
+          "layout": { "x": 0, "y": 32, "w": 192, "h": 18, "i": 5 }
+        }
+      ]
+    }
+  ]
+}
