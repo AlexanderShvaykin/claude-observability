@@ -1,44 +1,50 @@
 # Claude Code → OpenObserve
 
-Локальный OpenObserve, в который Claude Code пишет метрики и события напрямую по OTLP/HTTP.
-Коллектор OpenTelemetry не нужен — OpenObserve сам является OTLP-приёмником.
+A local OpenObserve instance that Claude Code writes metrics and events to directly over OTLP/HTTP.
+No OpenTelemetry Collector is needed — OpenObserve itself acts as the OTLP receiver.
 
-## Запуск
+## Running
+
+Requirements: Docker, `jq`, `curl`, and `python3` (the latter only for the limits poller).
 
 ```bash
-cp .env.example .env      # и поменять пароль
+cp .env.example .env      # and change the password
 docker compose up -d      # UI: http://localhost:5080
-docker compose logs -f    # логи сервера
-docker compose down       # остановить (данные остаются в ./data)
+docker compose logs -f    # server logs
+docker compose down       # stop (data stays in ./data)
 ```
 
-Учётка root'а — в `.env` (файл в `.gitignore`, пароль в открытом виде).
-OpenObserve не стартует, если email без домена верхнего уровня или пароль слабее,
-чем 8–128 символов с заглавной, строчной, цифрой и спецсимволом.
+The root account credentials live in `.env` (the file is in `.gitignore`, the password is stored in plaintext).
+OpenObserve refuses to start if the email has no top-level domain, or the password doesn't meet
+the 8–128 character requirement with an uppercase letter, lowercase letter, digit, and special character.
 
-Прописать телеметрию в Claude Code:
+Wire up telemetry in Claude Code:
 
 ```bash
-./install.sh                  # env-блок + сбор лимитов через statusline
-./install.sh --no-prompts     # без текстов промптов и ответов
-./install.sh --no-limits      # не трогать statusline
+./install.sh                  # env block + limits collection via the statusline
+./install.sh --no-prompts     # without prompt and response text
+./install.sh --no-limits      # leave the statusline alone
 ./install.sh --base-url http://host:5080 --org default
 ```
 
-Скрипт правит `~/.claude/settings.json` через jq: существующие настройки сохраняются,
-прежний statusline не теряется (переезжает в `CLAUDE_OBS_STATUSLINE`, обёртка вызывает
-его сама), рядом кладётся бэкап. Повторный запуск ничего не меняет.
+The script edits `~/.claude/settings.json` via jq: existing settings are preserved,
+the previous statusline is not lost (it moves to `CLAUDE_OBS_STATUSLINE`, and the wrapper calls
+it itself), and a backup is placed alongside. Running it again is a no-op.
 
-Развернуть то же самое на другом хосте: отдать агенту Claude Code промпт из
+To set up the same thing on another host: hand a Claude Code agent the prompt from
 [`AGENT_SETUP.md`](AGENT_SETUP.md).
 
-Данные лежат в `./data` (том хоста). Удалить всю историю: `docker compose down && rm -rf data`.
+Data lives in `./data` (a host volume). To delete all history: `docker compose down && rm -rf data`.
 
-`ZO_TELEMETRY: "false"` в compose отключает отправку статистики самого OpenObserve наружу.
+`ZO_TELEMETRY: "false"` in the compose file disables OpenObserve's own outbound telemetry.
 
-## Как настроен Claude Code
+The compose file publishes port 5080 on all interfaces. That's fine on a laptop, but on a shared
+host both the UI and the ingestion endpoint become reachable from the network, protected only by
+the credentials in `.env`. Bind to `127.0.0.1:5080` and use an SSH tunnel instead.
 
-Блок `env` в `~/.claude/settings.json` (применяется ко всем проектам):
+## How Claude Code is configured
+
+The `env` block in `~/.claude/settings.json` (applies to all projects):
 
 ```json
 "env": {
@@ -54,92 +60,92 @@ OpenObserve не стартует, если email без домена верхн
 }
 ```
 
-Детали:
+Details:
 
-- `OTEL_EXPORTER_OTLP_ENDPOINT` — база **без** завершающего слэша; SDK сам дописывает `/v1/metrics` и `/v1/logs`.
-- `stream-name=claude_code` — куда складывать события; иначе они падают в общий stream `default`.
-  На метрики не влияет: метрика = отдельный stream по своему имени.
-- `OTEL_LOG_USER_PROMPTS=1` — **в базу пишется текст промптов** (поле `prompt`). Убрать эту строку,
-  если такого не надо.
-- Пересчитать заголовок при смене пароля:
+- `OTEL_EXPORTER_OTLP_ENDPOINT` — the base URL **without** a trailing slash; the SDK appends `/v1/metrics` and `/v1/logs` itself.
+- `stream-name=claude_code` — which stream events are written to; otherwise they fall into the general `default` stream.
+  Doesn't affect metrics: each metric is its own stream, named after itself.
+- `OTEL_LOG_USER_PROMPTS=1` — **prompt text gets written to the database** (the `prompt` field). Remove this line
+  if you don't want that.
+- Recompute the header when the password changes:
   `printf '%s' "root@example.com:PASSWORD" | base64`
-- Изменения подхватываются новыми сессиями `claude`, текущая работает со старым конфигом.
+- Changes take effect for new `claude` sessions; the current session keeps running with the old config.
 
-## Что собирается
+## What gets collected
 
-Метрики (streams типа `metrics`):
+Metrics (streams of type `metrics`):
 
-| Stream | Что |
+| Stream | What |
 | --- | --- |
-| `claude_code_session_count` | старты сессий |
-| `claude_code_token_usage` | токены, разрез по `model` и `type` (input/output/cacheRead/cacheCreation) |
-| `claude_code_cost_usage` | стоимость в USD |
-| `claude_code_active_time_total` | активное время, сек |
-| `claude_code_lines_of_code_count` | изменённые строки (появится после первой правки файла) |
-| `claude_code_commit_count`, `claude_code_pull_request_count`, `claude_code_code_edit_tool_decision` | коммиты, PR, решения по разрешениям |
+| `claude_code_session_count` | session starts |
+| `claude_code_token_usage` | tokens, broken down by `model` and `type` (input/output/cacheRead/cacheCreation) |
+| `claude_code_cost_usage` | cost in USD |
+| `claude_code_active_time_total` | active time, sec |
+| `claude_code_lines_of_code_count` | changed lines (appears after the first file edit) |
+| `claude_code_commit_count`, `claude_code_pull_request_count`, `claude_code_code_edit_tool_decision` | commits, PRs, permission decisions |
 
-События (stream `claude_code`, тип logs), поле `event_name`:
+Events (stream `claude_code`, type logs), field `event_name`:
 `user_prompt`, `assistant_response`, `api_request`, `tool_result`, `tool_decision`,
-`hook_execution_start/complete`, `mcp_server_connection`, `plugin_loaded`, `subagent_*` и др.
+`hook_execution_start/complete`, `mcp_server_connection`, `plugin_loaded`, `subagent_*`, and others.
 
-Общие атрибуты и там, и там: `session_id`, `user_email`, `organization_id`, `terminal_type`,
+Common attributes in both: `session_id`, `user_email`, `organization_id`, `terminal_type`,
 `service_name`, `os_type`, `host_arch`.
 
-## Стартовая страница
+## Home page
 
-Встроенную Home в OpenObserve подменить нельзя — это захардкоженная вьюха
-(`HomeView.vue`), настройки «дашборд вместо главной» в OSS нет. Вместо неё —
-дашборд **Claude Code · Обзор**: лимиты, расход, активные сессии, топ инструментов,
-последние промпты на одном экране. Открывать по закладке:
+OpenObserve's built-in Home page can't be replaced — it's a hardcoded view
+(`HomeView.vue`), and OSS has no "dashboard as home" setting. Instead, use the
+**Claude Code · Обзор** (Overview) dashboard: rate limits, spend, active sessions, top tools,
+and recent prompts on one screen. Open it via a bookmark:
 
 ```
-http://localhost:5080/web/dashboards/view?org_identifier=default&folder=default&tab=default&dashboard=<ID обзора>&refresh=30
+http://localhost:5080/web/dashboards/view?org_identifier=default&folder=default&tab=default&dashboard=<overview ID>&refresh=30
 ```
 
-ID берётся из адресной строки при открытии дашборда. У «Обзора» зашит период
-по умолчанию 6 часов (`defaultDatetimeDuration` в JSON), так что данные видно сразу.
+The ID comes from the address bar when you open the dashboard. The Overview dashboard has a
+default period of 6 hours baked in (`defaultDatetimeDuration` in the JSON), so data is visible right away.
 
-Опционально можно убрать из левого меню неиспользуемые разделы — переменная
-`ZO_CUSTOM_HIDE_MENUS` в compose принимает список имён через запятую
-(`traces,rum,iam,reports,pipeline`); работает и в self-hosted.
+Optionally, you can remove unused sections from the left menu — the
+`ZO_CUSTOM_HIDE_MENUS` variable in the compose file accepts a comma-separated list of names
+(`traces,rum,iam,reports,pipeline`); this works in self-hosted too.
 
-## Дашборды
+## Dashboards
 
-Готовые дашборды в папке `default` (UI → **Dashboards**):
+Ready-made dashboards live in the `default` folder (UI → **Dashboards**):
 
-- **Claude Code · Обзор** — сводный экран, см. выше.
+- **Claude Code · Обзор** — the summary screen described above.
 
-- **Claude Code · Расходы** — стоимость / токены / сессии / активное время за период,
-  стоимость во времени по моделям, донат по моделям, токены по типам (input, output,
-  cacheRead, cacheCreation), таблица стоимости по сессиям.
-- **Claude Code · Активность** — промпты, запросы к API, средняя задержка, события во
-  времени и по типам, задержка API по моделям, срабатывания хуков, таблица последних промптов.
+- **Claude Code · Расходы** (Cost) — cost / tokens / sessions / active time for the period,
+  cost over time by model, a donut chart broken down by model, tokens by type (input, output,
+  cacheRead, cacheCreation), a per-session cost table.
+- **Claude Code · Активность** (Activity) — prompts, API requests, average latency, events over
+  time and by type, API latency by model, hook triggers, a table of recent prompts.
 
-- **Claude Code · Сессии** — список сессий: статус, последняя активность, промптов,
-  вызовов инструментов, стоимость, модель. Клик по строке → меню **«Открыть сессию»** →
-  детальный дашборд по этой сессии.
-- **Claude Code · Сессия** — что происходило внутри одной сессии: стоимость / промпты /
-  вызовы инструментов / длительность, диалог (промпт → ответы), таблица вызовов инструментов
-  с решением по разрешению, токены, задержка API и полный таймлайн событий.
-  Сессия выбирается в выпадающем списке **Сессия** вверху (переменная `session_id`)
-  или приходит из drilldown'а.
+- **Claude Code · Сессии** (Sessions) — a list of sessions: status, last activity, prompt count,
+  tool call count, cost, model. Clicking a row → the **«Открыть сессию»** ("Open session") menu →
+  a detailed dashboard for that session.
+- **Claude Code · Сессия** (Session) — what happened inside a single session: cost / prompts /
+  tool calls / duration, the dialogue (prompt → responses), a table of tool calls
+  with the permission decision, tokens, API latency, and a full event timeline.
+  The session is picked from the **Сессия** ("Session") dropdown at the top (the `session_id` variable)
+  or arrives via drilldown.
 
-Исходники — `dashboards/*.json` (схема dashboard v8). Импорт:
+Sources: `dashboards/*.json` (dashboard schema v8). Import:
 
 ```bash
-./import-dashboards.sh          # или UI → Dashboards → Import → выбрать JSON
+./import-dashboards.sh          # or UI → Dashboards → Import → pick the JSON
 ```
 
-Повторный запуск создаёт **дубликаты** — старый дашборд сначала удалить в UI.
+Running it again creates **duplicates** — delete the old dashboard in the UI first.
 
-Все панели на custom SQL, поэтому их легко править: в UI открыть панель → Edit → вкладка
-запроса. Метрики стоимости и токенов приходят с delta-температурностью, поэтому `SUM(value)`
-корректен и ничего не задваивает.
+All panels use custom SQL, so they're easy to edit: in the UI, open the panel → Edit → the query
+tab. Cost and token metrics arrive with delta temporality, so `SUM(value)`
+is correct and doesn't double-count anything.
 
-## Лимиты подписки
+## Subscription limits
 
-В OTel-телеметрии Claude Code лимитов подписки **нет** — ни метрики, ни поля события.
-Единственное место, где Claude Code их отдаёт, — JSON на stdin у statusline-скрипта:
+Claude Code's OTel telemetry **has no** subscription-limit data — no metric, no event field.
+The only place Claude Code exposes it is the JSON it feeds to the statusline script on stdin:
 
 ```json
 "rate_limits": {
@@ -148,138 +154,140 @@ ID берётся из адресной строки при открытии д�
 }
 ```
 
-Поле есть только у подписчиков Claude.ai (Pro/Max) и появляется после первого ответа API.
+The field is only present for Claude.ai subscribers (Pro/Max) and appears after the first API response.
 
-**Почему не хуки.** Проверено эмпирически (временный проект с хуками, дампившими stdin):
-`SessionStart`, `UserPromptSubmit`, `Stop` и `SessionEnd` получают только `session_id`,
-`prompt_id`, `transcript_path`, `cwd`, `permission_mode` и поля своего события — ни
-лимитов, ни расхода там нет. Транскрипты сессий (`~/.claude/projects/*/*.jsonl`) лимитов
-тоже не содержат, а `cachedUsageUtilization` в `~/.claude.json` обновляется редко
-(в замере — двухсуточной давности), поэтому как источник не годится.
+**Why not hooks.** Verified empirically (a throwaway project with hooks that dumped stdin):
+`SessionStart`, `UserPromptSubmit`, `Stop`, and `SessionEnd` receive only `session_id`,
+`prompt_id`, `transcript_path`, `cwd`, `permission_mode`, and their own event's fields — no
+rate limits, no spend data. Session transcripts (`~/.claude/projects/*/*.jsonl`) don't
+contain limits either, and `cachedUsageUtilization` in `~/.claude.json` updates rarely
+(observed to be two days stale), so it doesn't work as a source.
 
-Сбор разделён на два файла:
+Collection is split across two files:
 
-- `ship-limits.sh` — транспорт: читает JSON со stdin, не чаще **раза в минуту** отправляет
-  `rate_limits` в stream `claude_code_limits`. Ничего не печатает и ни от чего не зависит;
-  если появится другой источник тех же данных, его можно подключить к этому же скрипту.
-- `statusline-ship-limits.sh` — обёртка statusline: скармливает JSON транспорту и рисует
-  строку. Если на хосте есть свой statusline — вызывает его (путь или команда с аргументами
-  в `CLAUDE_OBS_STATUSLINE`, `~` разворачивается), вывод не меняется. Если своего нет —
-  печатает минимальную строку `Opus 5 · 5h:63% · ctx:7%`.
+- `ship-limits.sh` — the transport: reads JSON from stdin, ships `rate_limits`
+  to the `claude_code_limits` stream no more often than **once a minute**. It prints nothing and
+  depends on nothing; if another source of the same data shows up, it can be hooked up to this same script.
+- `statusline-ship-limits.sh` — the statusline wrapper: feeds the JSON to the transport and renders
+  the status line. If the host has its own statusline, it calls it (path or command with arguments
+  in `CLAUDE_OBS_STATUSLINE`, `~` is expanded), and its output is unchanged. If there isn't one,
+  it prints a minimal `Opus 5 · 5h:63% · ctx:7%` line.
 
-Подключается через `./install.sh`, руками ничего править не нужно.
+Wired up via `./install.sh` — nothing needs to be edited by hand.
 
-### Хосты без statusline (headless, `claude -p`)
+### Hosts without a statusline (headless, `claude -p`)
 
-Statusline в headless-режиме **не запускается** (проверено: хук-заглушка на `statusLine`
-не получает ничего при `claude -p`). Для таких хостов есть второй сборщик — опрос:
+The statusline **does not run** in headless mode (verified: a stub hook on `statusLine`
+gets nothing under `claude -p`). For such hosts there's a second collector — polling:
 
 ```bash
-./poll-limits.sh                    # разовый опрос
-./install-poller.sh                 # по расписанию, каждые 10 минут
+./poll-limits.sh                    # one-off poll
+./install-poller.sh                 # scheduled, every 10 minutes
 ./install-poller.sh --interval 30
 ./install-poller.sh --uninstall
 ```
 
-`claude -p "/usage"` печатает лимиты текстом и в headless-режиме тоже — включая
-недельный лимит по отдельной модели, которого в statusline нет. `parse-usage.py`
-разбирает вывод (проценты + время сброса с учётом таймзоны) и отдаёт тот же
-`ship-limits.sh`, поэтому данные ложатся в тот же stream и те же панели; отличаются
-только поля `source` (`usage-cli` против `statusline`) и `host`.
+`claude -p "/usage"` prints the limits as text in headless mode too — including
+the per-model weekly limit, which the statusline doesn't have. `parse-usage.py`
+parses the output (percentages + reset time, timezone-aware) and hands it to the same
+`ship-limits.sh`, so the data lands in the same stream and the same panels; the only
+difference is the `source` field (`usage-cli` vs `statusline`) and `host`.
 
-Опрос идёт из каталога `poller/`, где лежит `.claude/settings.json` с выключенной
-телеметрией: иначе каждый опрос создавал бы лишнюю «сессию» в метриках. Переменными
-окружения так сделать нельзя — `env` из `~/.claude/settings.json` их перебивает,
-а project-level настройки перебивают пользовательские (проверено обоими способами).
+Polling runs out of the `poller/` directory, which has a `.claude/settings.json` with telemetry
+turned off: otherwise every poll would create a spurious "session" in the metrics. This can't be
+done via environment variables — the `env` block from `~/.claude/settings.json` overrides them,
+and project-level settings override user-level ones (verified both ways).
 
-`install-poller.sh` ставит launchd-агент на macOS и cron-задание на Linux.
-Сам опрос токенов не тратит: `/usage` не обращается к модели.
+`install-poller.sh` installs a launchd agent on macOS and a cron job on Linux.
+Polling itself doesn't spend tokens: `/usage` doesn't call the model.
 
-Дашборд **Claude Code · Лимиты подписки**: два gauge (5-часовое и недельное окно),
-время до сброса каждого окна, график расхода во времени и таблица замеров.
+The **Claude Code · Лимиты подписки** (Subscription limits) dashboard: two gauges (the 5-hour
+and weekly windows), time to reset for each window, a usage-over-time chart, and a table of
+measurements.
 
-Важные ограничения:
+Important limitations:
 
-- Замеры идут только пока открыта интерактивная сессия Claude Code — statusline
-  не запускается в headless-режиме (`claude -p`). В простое график не обновляется.
-- Троттлинг хранит отметку времени в `/tmp/claude-code-limits-last-ship` (одна на все
-  сессии). Удалить файл = следующий рендер statusline отправит замер сразу.
-- Значения приходят от Claude Code как есть; это доля израсходованного окна, а не токены.
-- OpenObserve кэширует результаты панелей: после удаления/добавления данных панель может
-  какое-то время показывать старое (в углу написано «3m ago»). Кнопка **Refresh** в шапке
-  дашборда перечитывает данные. По той же причине при первом открытии дашборда панели
-  иногда показывают «No Data» (успевают отработать со старым временным окном) — помогает
-  тот же Refresh.
+- The statusline collector only produces measurements while an interactive Claude Code session
+  is open, so the chart doesn't update while idle. On hosts that only run `claude -p`, use the
+  poller described above instead.
+- Throttling keeps a timestamp in `/tmp/claude-code-limits-last-ship` (one file shared across all
+  sessions). Deleting the file means the next statusline render ships a measurement immediately.
+- Values come from Claude Code as-is; they're the fraction of the window consumed, not token counts.
+- OpenObserve caches panel results: after data is deleted/added, a panel may keep showing
+  stale results for a while (the corner shows "3m ago"). The **Refresh** button in the dashboard
+  header re-reads the data. For the same reason, on first opening a dashboard panels
+  sometimes show "No Data" (they run before the time window catches up) — the same Refresh
+  fixes it.
 
-## Наблюдение за живыми сессиями
+## Watching live sessions
 
-«Активна» = у сессии было хоть одно событие за последние 5 минут (`_timestamp >= now() - 5m`
-в SQL панели). Отдельного события «сессия закончилась» Claude Code не шлёт, поэтому статус
-считается по свежести событий.
+"Active" means the session had at least one event in the last 5 minutes (`_timestamp >= now() - 5m`
+in the panel's SQL). Claude Code doesn't send a separate "session ended" event, so status
+is derived from event recency.
 
-Задержка данных: события уходят раз в 5 секунд (`OTEL_LOGS_EXPORT_INTERVAL`), метрики —
-раз в 10 секунд (`OTEL_METRIC_EXPORT_INTERVAL`). Автообновление дашборда включается кнопкой
-**Off** в шапке (10s / 30s / 1m) либо параметром в URL:
+Data lag: events are sent every 5 seconds (`OTEL_LOGS_EXPORT_INTERVAL`), metrics
+every 10 seconds (`OTEL_METRIC_EXPORT_INTERVAL`). Dashboard auto-refresh is turned on via the
+**Off** button in the header (10s / 30s / 1m) or via a URL parameter:
 
 ```
 http://localhost:5080/web/dashboards/view?org_identifier=default&dashboard=<ID>&folder=default&tab=default&period=1h&refresh=30
 ```
 
-Для «сырого» просмотра одной сессии есть Logs: stream `claude_code`, запрос
-`session_id='<uuid>'` — там видно каждое событие со всеми полями.
+For a "raw" view of a single session, there's Logs: stream `claude_code`, query
+`session_id='<uuid>'` — shows every event with all its fields.
 
-Промпты и ответы в диалоге видны только потому, что включён `OTEL_LOG_USER_PROMPTS=1`
-(поля `prompt` и `response`). Без него эти колонки будут пустыми.
+Prompts and responses are visible in the dialogue only because `OTEL_LOG_USER_PROMPTS=1` is
+enabled (the `prompt` and `response` fields). Without it, these columns will be empty.
 
-## Готовые запросы
+## Ready-made queries
 
-UI → **Logs**, stream `claude_code` (для событий) или **Metrics** (для метрик).
-Не забыть выставить временной диапазон.
+UI → **Logs**, stream `claude_code` (for events) or **Metrics** (for metrics).
+Don't forget to set the time range.
 
-Расход по моделям за период (Metrics → SQL, stream `claude_code_cost_usage`):
+Spend by model for the period (Metrics → SQL, stream `claude_code_cost_usage`):
 
 ```sql
 select model, sum(value) as usd from "claude_code_cost_usage" group by model order by usd desc
 ```
 
-Токены по типу:
+Tokens by type:
 
 ```sql
 select model, type, sum(value) as tokens
 from "claude_code_token_usage" group by model, type order by tokens desc
 ```
 
-Топ промптов по длине (Logs, stream `claude_code`):
+Top prompts by length (Logs, stream `claude_code`):
 
 ```sql
 select event_timestamp, prompt_length, prompt from "claude_code"
 where event_name = 'user_prompt' order by prompt_length desc
 ```
 
-Активность по типам событий за период:
+Activity by event type for the period:
 
 ```sql
 select event_name, count(*) as c from "claude_code" group by event_name order by c desc
 ```
 
-## Проверка, что телеметрия доходит
+## Verifying telemetry is arriving
 
 ```bash
 B64=$(printf '%s' "root@example.com:$(grep ZO_ROOT_USER_PASSWORD .env | cut -d= -f2-)" | base64)
 curl -s -H "Authorization: Basic $B64" http://localhost:5080/api/default/streams | jq '.list[].name'
-docker logs openobserve 2>&1 | grep 'POST /api/default/v1/'   # должны быть 200
+docker logs openobserve 2>&1 | grep 'POST /api/default/v1/'   # should be 200s
 ```
 
-Если пусто — открыть новую сессию `claude`, выполнить `/status` (там видны ошибки OTLP-экспорта)
-или запустить `claude --debug`.
+If it's empty, open a new `claude` session, run `/status` (it shows OTLP export errors),
+or run `claude --debug`.
 
-## Ретеншн
+## Retention
 
-Глобально 30 дней — `ZO_COMPACT_DATA_RETENTION_DAYS: "30"` в compose. Проверить:
+Globally 30 days — `ZO_COMPACT_DATA_RETENTION_DAYS: "30"` in the compose file. To check:
 
 ```bash
 curl -s -H "Authorization: Basic $B64" http://localhost:5080/config | jq .data_retention_days
 ```
 
-Для отдельного stream'а можно задать своё значение в UI: Streams → stream → Retention
-(`0` в настройках stream'а = «использовать глобальное»).
+A specific stream can have its own value set in the UI: Streams → stream → Retention
+(`0` in the stream's settings means "use the global value").

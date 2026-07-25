@@ -1,121 +1,128 @@
-# Промпт для агента: развернуть мониторинг Claude Code на хосте
+# Prompt for an agent: deploy Claude Code monitoring on a host
 
-Отдай текст ниже (всё, что после разделителя) агенту Claude Code на том хосте, где нужен
-мониторинг. Агент склонирует репозиторий, поднимет OpenObserve, пропишет телеметрию
-и импортирует дашборды.
+Hand the text below (everything after the divider) to a Claude Code agent on the host where
+monitoring is needed. The agent will clone the repository, bring up OpenObserve, wire up
+telemetry, and import the dashboards.
 
-Требования к хосту: Docker, `jq`, `curl`, `git`, установленный Claude Code.
+Host requirements: Docker with a running daemon, `jq`, `curl`, `git`, `python3`, Claude Code
+installed, and access to the private repository (an SSH key for the GitHub account, or an
+authenticated `gh`).
 
 ---
 
-Разверни на этом хосте мониторинг Claude Code через OpenObserve.
-Репозиторий: `git@github.com:AlexanderShvaykin/claude-observability.git`
-(если SSH недоступен — `gh repo clone AlexanderShvaykin/claude-observability`).
+Set up Claude Code monitoring on this host using OpenObserve.
+Repository: `git@github.com:AlexanderShvaykin/claude-observability.git`
+(if SSH isn't available — `gh repo clone AlexanderShvaykin/claude-observability`).
 
-Работай по шагам, каждый проверяй фактически, а не «должно работать».
-Ничего не выдумывай: все команды и форматы описаны в README репозитория.
+Work through the steps one at a time, and verify each one for real — not "it should work."
+Don't make anything up: every command and format is documented in the repo's README.
 
-## 1. Клонировать и подготовить окружение
+## 1. Clone and prepare the environment
 
-- Клонируй репозиторий в `~/develop/claude-observability` (или скажи, куда положил).
-- Скопируй `.env.example` в `.env` и сгенерируй пароль.
-  OpenObserve упадёт при старте, если нарушить его правила:
-  - email обязан быть с доменом верхнего уровня — `root@localhost` не подойдёт;
-  - пароль 8–128 символов, минимум одна строчная, одна заглавная, цифра и спецсимвол.
+- Clone the repository into `~/develop/claude-observability` (or say where you put it).
+- Copy `.env.example` to `.env` and generate a password.
+  OpenObserve will fail to start if you violate its rules:
+  - the email must have a top-level domain — `root@localhost` won't work;
+  - the password must be 8–128 characters, with at least one lowercase letter, one uppercase
+    letter, a digit, and a special character.
 
-## 2. Поднять OpenObserve
+## 2. Bring up OpenObserve
 
-- `docker compose up -d` в каталоге репозитория.
-- Проверь фактически: `curl -s -o /dev/null -w '%{http_code}' http://localhost:5080/web/`
-  должен вернуть `200`. Если нет — смотри `docker logs openobserve`.
-- Порт 5080 должен быть свободен; если занят, поменяй маппинг в `docker-compose.yml`
-  и дальше используй новый порт везде.
+- `docker compose up -d` in the repository directory.
+- Verify for real: `curl -s -o /dev/null -w '%{http_code}' http://localhost:5080/web/`
+  should return `200`. If not, check `docker logs openobserve`.
+- Port 5080 must be free; if it's taken, change the mapping in `docker-compose.yml`
+  and use the new port everywhere from then on.
+- The compose file publishes the port on all interfaces. If this host isn't isolated, change the
+  mapping to `127.0.0.1:5080:5080` — otherwise the UI and the ingestion endpoint are reachable
+  from the network, protected only by the credentials in `.env`. Tell the user what you chose.
 
-## 3. Прописать телеметрию в Claude Code
+## 3. Wire up telemetry in Claude Code
 
-Запусти `./install.sh` — он идемпотентно правит `~/.claude/settings.json` через jq:
-добавляет env-блок телеметрии, подключает сбор лимитов подписки через statusline-обёртку
-и кладёт рядом бэкап. Существующие настройки пользователя сохраняются; если на хосте
-уже был свой statusline, он переезжает в `CLAUDE_OBS_STATUSLINE` и вызывается обёрткой,
-так что строка статуса не изменится.
+Run `./install.sh` — it idempotently edits `~/.claude/settings.json` via jq:
+adds the telemetry `env` block, wires up subscription-limit collection through the statusline
+wrapper, and drops a backup alongside. The user's existing settings are preserved; if the host
+already had its own statusline, it moves to `CLAUDE_OBS_STATUSLINE` and gets called by the
+wrapper, so the status line's output stays unchanged.
 
-- Спроси пользователя, писать ли в базу **тексты промптов и ответов**. Если нет —
+- Ask the user whether **prompt and response text** should be written to the database. If not —
   `./install.sh --no-prompts`.
-- Если сбор лимитов не нужен или statusline трогать нельзя — `./install.sh --no-limits`.
-- Если OpenObserve не на `localhost:5080` — `--base-url http://host:port`.
+- If limit collection isn't needed, or the statusline must not be touched — `./install.sh --no-limits`.
+- If OpenObserve isn't on `localhost:5080` — `--base-url http://host:port`.
 
-Проверь результат: `jq '{env, statusLine}' ~/.claude/settings.json` — и убедись, что
-прежние настройки пользователя на месте.
+Verify the result: `jq '{env, statusLine}' ~/.claude/settings.json` — and confirm that
+the user's previous settings are still there.
 
-Не переписывай `settings.json` целиком и не редактируй его вручную — там живут
-плагины, хуки и permissions пользователя.
+Don't rewrite `settings.json` wholesale, and don't edit it by hand — it holds the user's
+plugins, hooks, and permissions.
 
-## 4. Про лимиты подписки: не пытайся заменить statusline хуками
+## 4. On subscription limits: don't try to replace the statusline with hooks
 
-Это уже проверено эмпирически, не трать время:
+This has already been verified empirically — don't waste time on it:
 
-- хуки (`SessionStart`, `UserPromptSubmit`, `Stop`, `SessionEnd`) получают только
-  `session_id`, `prompt_id`, `transcript_path`, `cwd`, `permission_mode` — лимитов нет;
-- в транскриптах сессий их тоже нет;
-- `cachedUsageUtilization` в `~/.claude.json` обновляется редко и бывает протухшим на сутки.
+- hooks (`SessionStart`, `UserPromptSubmit`, `Stop`, `SessionEnd`) receive only
+  `session_id`, `prompt_id`, `transcript_path`, `cwd`, `permission_mode` — no limits;
+- session transcripts don't have them either;
+- `cachedUsageUtilization` in `~/.claude.json` updates rarely and can be a day stale.
 
-Есть ровно два рабочих источника, выбери по тому, как на хосте запускают Claude Code:
+There are exactly two working sources; pick based on how Claude Code runs on this host:
 
-**Интерактивные сессии** — statusline. `install.sh` уже всё подключил: транспорт
-`ship-limits.sh` читает JSON со stdin, обёртка `statusline-ship-limits.sh` рисует строку
-и кормит транспорт. Проверить, не дожидаясь живой сессии: скорми обёртке синтетический
-JSON с полем `rate_limits` на stdin и убедись, что появился stream `claude_code_limits`.
+**Interactive sessions** — the statusline. `install.sh` already wired everything up: the
+transport `ship-limits.sh` reads JSON from stdin, the `statusline-ship-limits.sh` wrapper
+renders the status line and feeds the transport. To verify without waiting for a live session:
+feed the wrapper a synthetic JSON with a `rate_limits` field on stdin and check that the
+`claude_code_limits` stream appears.
 
-**Только headless (`claude -p`)** — опрос. Statusline в headless не запускается вообще,
-зато `claude -p "/usage"` печатает лимиты текстом. Поставь опрос по расписанию:
+**Headless only (`claude -p`)** — polling. The statusline doesn't run at all in headless mode,
+but `claude -p "/usage"` prints the limits as text. Set up scheduled polling:
 
 ```bash
-./poll-limits.sh          # разовый прогон, проверь что запись появилась
-./install-poller.sh       # launchd на macOS, cron на Linux, каждые 10 минут
+./poll-limits.sh          # one-off run, check that a record shows up
+./install-poller.sh       # launchd on macOS, cron on Linux, every 10 minutes
 ```
 
-Опрос сам по себе токенов не тратит и не создаёт лишних сессий в метриках — он идёт из
-каталога `poller/` с project-level настройкой `CLAUDE_CODE_ENABLE_TELEMETRY=0`.
-Не пытайся выключить телеметрию переменной окружения: `env` из `~/.claude/settings.json`
-её перебивает, работают только project-level настройки.
+Polling by itself doesn't spend tokens and doesn't create extra sessions in the metrics — it
+runs out of the `poller/` directory with a project-level `CLAUDE_CODE_ENABLE_TELEMETRY=0`
+setting. Don't try to disable telemetry via an environment variable: the `env` block from
+`~/.claude/settings.json` overrides it — only project-level settings work.
 
-Тестовые записи потом удали: `DELETE /api/default/streams/claude_code_limits?type=logs`.
+Delete the test records afterward: `DELETE /api/default/streams/claude_code_limits?type=logs`.
 
-## 5. Импортировать дашборды
+## 5. Import the dashboards
 
-- `./import-dashboards.sh` (или UI → Dashboards → Import).
-- Скрипт создаёт дашборды заново при каждом запуске — повторный импорт даст дубликаты.
-- Проверь, что появились все шесть: Обзор, Расходы, Активность, Сессии, Сессия,
-  Лимиты подписки.
+- `./import-dashboards.sh` (or UI → Dashboards → Import).
+- The script creates the dashboards fresh on every run — importing again produces duplicates.
+- Verify that all six appeared: Обзор (Overview), Расходы (Cost), Активность (Activity),
+  Сессии (Sessions), Сессия (Session), Лимиты подписки (Subscription limits).
 
-## 6. Проверить сквозной поток
+## 6. Verify the end-to-end flow
 
-- Переменные окружения подхватываются **только новыми сессиями** `claude`.
-  Запусти headless-сессию: `claude -p "Answer with one word: ping"`.
-- Через ~15 секунд проверь фактически:
-  - `docker logs openobserve | grep 'POST /api/default/v1/'` — должны быть `200`;
+- Environment variables are picked up **only by new `claude` sessions**.
+  Start a headless session: `claude -p "Answer with one word: ping"`.
+- After ~15 seconds, verify for real:
+  - `docker logs openobserve | grep 'POST /api/default/v1/'` — should show `200`s;
   - `curl -s -H "Authorization: Basic $B64" http://localhost:5080/api/default/streams`
-    — должны появиться `claude_code` (logs) и `claude_code_*` (metrics).
-- Открой дашборд «Claude Code · Обзор» и убедись, что панели наполнены. Если пусто —
-  нажми Refresh в шапке: OpenObserve кэширует результаты панелей, и при первом
-  открытии данные иногда не подтягиваются.
+    — `claude_code` (logs) and `claude_code_*` (metrics) should appear.
+- Open the **Claude Code · Обзор** (Overview) dashboard and confirm the panels are populated.
+  If it's empty, click Refresh in the header: OpenObserve caches panel results, and on first
+  open the data sometimes doesn't catch up.
 
-## 7. Что сообщить в конце
+## 7. What to report at the end
 
-- Куда склонирован репозиторий и на каком порту UI, логин от OpenObserve.
-- Включён ли сбор текстов промптов и сбор лимитов.
-- Результаты проверок из шага 6 — что именно ты видел, а не «всё работает».
-- Напомни, что телеметрия появится только в новых сессиях Claude Code.
+- Where the repository was cloned and what port the UI is on, and the OpenObserve login.
+- Whether prompt/response text collection and limit collection are enabled.
+- The results of the checks from step 6 — what you actually saw, not "everything works."
+- Remind them that telemetry will only show up in new Claude Code sessions.
 
-## Подводные камни, уже проверенные на практике
+## Gotchas already verified in practice
 
-- Метрики стоимости и токенов приходят с delta-температурностью, поэтому `SUM(value)`
-  корректен; не переписывай запросы на «взять максимум по сессии».
-- Часть полей событий — строки (`duration_ms`, `prompt_length`), для агрегатов нужен
-  `CAST(... AS DOUBLE)`, иначе `AVG` падает с ошибкой планировщика.
-- Поля вроде `tool_name` появляются в схеме stream'а только после первого события
-  такого типа; запрос к несуществующей колонке падает.
-- Статус «активна» у сессии считается по свежести событий (5 минут) — отдельного
-  события «сессия завершилась» Claude Code не шлёт.
-- Statusline не запускается в headless-режиме (`claude -p`), поэтому лимиты
-  собираются только в интерактивных сессиях.
+- Cost and token metrics arrive with delta temporality, so `SUM(value)`
+  is correct; don't rewrite queries to "take the max per session."
+- Some event fields are strings (`duration_ms`, `prompt_length`); aggregates need
+  `CAST(... AS DOUBLE)`, otherwise `AVG` fails with a planner error.
+- Fields like `tool_name` only appear in the stream's schema after the first event
+  of that type; querying a column that doesn't exist yet fails.
+- A session's "active" status is derived from event recency (5 minutes) — Claude Code
+  doesn't send a separate "session ended" event.
+- The statusline doesn't run in headless mode (`claude -p`), so on such hosts limits come from
+  the poller, not from the statusline.
