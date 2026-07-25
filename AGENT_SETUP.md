@@ -59,15 +59,27 @@
 - в транскриптах сессий их тоже нет;
 - `cachedUsageUtilization` в `~/.claude.json` обновляется редко и бывает протухшим на сутки.
 
-Единственный свежий источник — JSON, который Claude Code отдаёт statusline-скрипту.
-Транспорт вынесен в `ship-limits.sh` (читает JSON со stdin, шлёт не чаще раза в минуту),
-обёртка `statusline-ship-limits.sh` только рисует строку и кормит транспорт.
+Есть ровно два рабочих источника, выбери по тому, как на хосте запускают Claude Code:
 
-Проверить, не дожидаясь живой сессии: скорми обёртке синтетический JSON с полем
-`rate_limits` на stdin и убедись, что в OpenObserve появился stream `claude_code_limits`.
+**Интерактивные сессии** — statusline. `install.sh` уже всё подключил: транспорт
+`ship-limits.sh` читает JSON со stdin, обёртка `statusline-ship-limits.sh` рисует строку
+и кормит транспорт. Проверить, не дожидаясь живой сессии: скорми обёртке синтетический
+JSON с полем `rate_limits` на stdin и убедись, что появился stream `claude_code_limits`.
+
+**Только headless (`claude -p`)** — опрос. Statusline в headless не запускается вообще,
+зато `claude -p "/usage"` печатает лимиты текстом. Поставь опрос по расписанию:
+
+```bash
+./poll-limits.sh          # разовый прогон, проверь что запись появилась
+./install-poller.sh       # launchd на macOS, cron на Linux, каждые 10 минут
+```
+
+Опрос сам по себе токенов не тратит и не создаёт лишних сессий в метриках — он идёт из
+каталога `poller/` с project-level настройкой `CLAUDE_CODE_ENABLE_TELEMETRY=0`.
+Не пытайся выключить телеметрию переменной окружения: `env` из `~/.claude/settings.json`
+её перебивает, работают только project-level настройки.
+
 Тестовые записи потом удали: `DELETE /api/default/streams/claude_code_limits?type=logs`.
-Учти: лимиты собираются только в интерактивных сессиях — statusline не запускается
-в headless-режиме (`claude -p`).
 
 ## 5. Импортировать дашборды
 

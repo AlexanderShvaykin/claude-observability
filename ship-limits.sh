@@ -28,16 +28,22 @@ now=$(date +%s)
 last=$(cat "$STAMP" 2>/dev/null || echo 0)
 [ $((now - last)) -lt "$INTERVAL" ] && exit 0
 
-payload=$(printf '%s' "$INPUT" | jq -c '
+payload=$(printf '%s' "$INPUT" | jq -c \
+  --arg source "${CLAUDE_OBS_SOURCE:-statusline}" \
+  --arg host "$(hostname -s 2>/dev/null || echo unknown)" '
   select(.rate_limits != null) | [{
     five_hour_used:       .rate_limits.five_hour.used_percentage,
     five_hour_resets_at:  .rate_limits.five_hour.resets_at,
     seven_day_used:       .rate_limits.seven_day.used_percentage,
     seven_day_resets_at:  .rate_limits.seven_day.resets_at,
+    weekly_scoped_used:   .rate_limits.weekly_scoped.used_percentage,
+    weekly_scoped_model:  .rate_limits.weekly_scoped.model,
     session_id:           .session_id,
     model:                .model.display_name,
-    version:              .version
-  }]' 2>/dev/null)
+    version:              .version,
+    source:               $source,
+    host:                 $host
+  } | with_entries(select(.value != null))]' 2>/dev/null)
 [ -z "$payload" ] && exit 0
 
 echo "$now" >"$STAMP"

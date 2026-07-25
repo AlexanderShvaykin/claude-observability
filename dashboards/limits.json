@@ -149,7 +149,7 @@
           "queryType": "sql",
           "queries": [
             {
-              "query": "SELECT _timestamp as \"x_axis_1\", five_hour_used as \"y_axis_1\", seven_day_used as \"y_axis_2\", model as \"y_axis_3\", session_id as \"y_axis_4\" FROM \"claude_code_limits\" ORDER BY x_axis_1 DESC",
+              "query": "SELECT _timestamp as \"x_axis_1\", five_hour_used as \"y_axis_1\", seven_day_used as \"y_axis_2\", source as \"y_axis_3\", host as \"y_axis_4\", weekly_scoped_model as \"y_axis_5\", weekly_scoped_used as \"y_axis_6\" FROM \"claude_code_limits\" ORDER BY x_axis_1 DESC",
               "customQuery": true,
               "fields": {
                 "stream": "claude_code_limits",
@@ -158,8 +158,10 @@
                 "y": [
                   { "label": "5h, %", "alias": "y_axis_1", "column": "five_hour_used", "color": null },
                   { "label": "7d, %", "alias": "y_axis_2", "column": "seven_day_used", "color": null },
-                  { "label": "Модель", "alias": "y_axis_3", "column": "model", "color": null },
-                  { "label": "Сессия", "alias": "y_axis_4", "column": "session_id", "color": null }
+                  { "label": "Источник", "alias": "y_axis_3", "column": "source", "color": null },
+                  { "label": "Хост", "alias": "y_axis_4", "column": "host", "color": null },
+                  { "label": "Модель (неделя)", "alias": "y_axis_5", "column": "weekly_scoped_model", "color": null },
+                  { "label": "%", "alias": "y_axis_6", "column": "weekly_scoped_used", "color": null }
                 ],
                 "z": [],
                 "filter": { "filterType": "group", "logicalOperator": "AND", "conditions": [] }
